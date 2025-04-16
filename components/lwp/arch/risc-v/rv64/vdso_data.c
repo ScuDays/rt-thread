@@ -9,7 +9,7 @@
  */
 
 #include <rtthread.h>
-#include <gtimer.h>
+//#include <gtimer.h>
 #include <ktime.h>
 #include <time.h>
 #include <vdso_datapage.h>
@@ -40,6 +40,7 @@ void rt_vdso_update_glob_time(void)
     rt_ktime_boottime_get_ns(vdso_ts);
 
     /* 更新最后一次计数器值 */
-    vdata->cycle_last = rt_hw_get_cntpct_val();
+    // vdata->cycle_last = rt_hw_get_cntpct_val();
+   // vdata->cycle_last = riscv_cputime_gettime();
     rt_vdso_write_end(vdata);
 }

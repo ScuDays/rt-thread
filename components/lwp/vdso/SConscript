@@ -12,7 +12,8 @@ CPPPATH = [cwd, cwd + "/kernel"]
 if not GetDepend(['RT_USING_VDSO']):
     Return('group')
 
-if rtconfig.ARCH != "aarch64":
+# 修改
+if rtconfig.ARCH != "aarch64" and rtconfig.ARCH != "risc-v":
     src = Glob('*.c')
     group = DefineGroup('VDSO', src, depend = ['RT_USING_SMART','RT_USING_VDSO'], CPPPATH = CPPPATH)
     Return('group')
@@ -21,6 +22,7 @@ list = os.listdir(cwd)
 src    = Glob('kernel/*.c')
 src    +=Glob('kernel/*.S')
 
+print(rtconfig.CPP)
 if not os.path.exists(cwd + "/user/vdso.lds"):
     Preprocessing("user/vdso.lds.S", ".lds", CPPPATH=[cwd])
 

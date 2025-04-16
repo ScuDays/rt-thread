@@ -8,18 +8,18 @@
  * 2024-07-04     rcitach        init ver.
  */
  
-toolchain("aarch64-smart-musleabi")
+toolchain("riscv64-smart-musleabi")
     set_kind("standalone")
     
-    local exec_path = os.getenv("RTT_EXEC_PATH") or "/opt/aarch64-linux-musleabi/bin/"
+    local exec_path = os.getenv("RTT_EXEC_PATH") or "/opt/riscv64-linux-musleabi/bin/"
     local sdkdir = exec_path .. "/../"
     local incdir = os.curdir() .. "/../include"
-    local device = '-march=armv8-a -mtune=cortex-a53 -ftree-vectorize -ffast-math -funwind-tables -fno-strict-aliasing'
+    local device = '-march=rv64imafdc -mabi=lp64'
     
     set_bindir(exec_path)
     set_sdkdir(sdkdir)
     
-    set_toolset("sh", "aarch64-linux-musleabi-gcc")
+    set_toolset("sh", "riscv64-linux-musleabi-gcc")
     on_load(function(toolchain)
         toolchain:load_cross_toolchain()
         toolchain:add("cxflags", device)
@@ -37,19 +37,19 @@ toolchain_end()
 
 set_config("plat", "cross")
 set_config("target_os", "rt-smart")
-set_config("arch", "aarch64")
+set_config("arch", "riscv")
 
 rule("vdso_lds")
     set_extensions(".lds.S")
     on_buildcmd_file(function (target, batchcmds, sourcefile, opt)
         local incdir = os.curdir() .. "/../include"
         local targetfile = path.basename(sourcefile)
-        local prefix = os.getenv("RTT_CC_PREFIX=") or "aarch64-linux-musleabi-"
+        local prefix = os.getenv("RTT_CC_PREFIX=") or "riscv64-linux-musleabi-"
         batchcmds:vrunv(prefix .. "gcc", {"-E", "-P", sourcefile, "-o", targetfile, "-I", incdir})
     end)
 
 target("rtos_vdso")
-    set_toolchains("aarch64-smart-musleabi")
+    set_toolchains("riscv64-smart-musleabi")
     add_rules("vdso_lds")
     set_kind("shared")
     add_files("vdso.lds.S")

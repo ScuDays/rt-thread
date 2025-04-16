@@ -10,8 +10,10 @@
  
 #include <vdso_config.h>
 
-OUTPUT_FORMAT("elf64-littleaarch64", "elf64-littleaarch64", "elf64-littleaarch64")
-OUTPUT_ARCH(aarch64)
+/* 修改: 原aarch64格式 */
+/* OUTPUT_FORMAT("elf64-littleaarch64", "elf64-littleaarch64", "elf64-littleaarch64") */
+OUTPUT_FORMAT("elf64-littleriscv", "elf64-littleriscv", "elf64-littleriscv")
+OUTPUT_ARCH(riscv)
 
 SECTIONS
 {
@@ -30,7 +32,7 @@ SECTIONS
     .rela.dyn    : ALIGN(8) { *(.rela .rela*) }
 
     .rodata      : {
-        *(.rodata*)
+        *(.rodata*) 
         *(.got)
         *(.got.plt)
         *(.plt)

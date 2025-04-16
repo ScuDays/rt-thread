@@ -10,7 +10,7 @@
 
 #include <rtthread.h>
 #include <mmu.h>
-#include <gtimer.h>
+//#include <gtimer.h>
 #include <lwp_user_mm.h>
 
 #include "vdso.h"
@@ -21,7 +21,8 @@
 
 /* vDSO ABI 类型枚举 */
 enum vdso_abi {
-    VDSO_ABI_AA64,  /* ARM64 ABI */
+    /* VDSO_ABI_AA64,   ARM64 ABI */ 
+    VDSO_ABI_RV64,  /* RISC-V 64-bit ABI */
 };
 
 /* vDSO 数据页偏移枚举 */
@@ -41,8 +42,13 @@ struct vdso_abi_info {
 
 /* vDSO ABI 信息数组 */
 static struct vdso_abi_info vdso_info[] = {
-    [VDSO_ABI_AA64] = {
+    /* [VDSO_ABI_AA64] = {
         .name = "vdso_aarch64",
+        .vdso_code_start = __vdso_text_start,
+        .vdso_code_end = __vdso_text_end,
+    }, */
+    [VDSO_ABI_RV64] = {
+        .name = "vdso_riscv64",
         .vdso_code_start = __vdso_text_start,
         .vdso_code_end = __vdso_text_end,
     },
@@ -104,7 +110,8 @@ int arch_setup_additional_pages(struct rt_lwp *lwp)
 {
     int ret;
     if (init_ret_flag != RT_EOK) return -RT_ERROR;
-    ret = __setup_additional_pages(VDSO_ABI_AA64, lwp);
+    /* ret = __setup_additional_pages(VDSO_ABI_AA64, lwp); */
+    ret = __setup_additional_pages(VDSO_ABI_RV64, lwp);
 
     return ret;
 }
@@ -125,16 +132,25 @@ static void __initdata(void)
 static int validate_vdso_elf(void)
 {
     /* 验证ELF头 */
-    if (rt_memcmp(vdso_info[VDSO_ABI_AA64].vdso_code_start, ELF_HEAD, ELF_HEAD_LEN)) {
+    /* if (rt_memcmp(vdso_info[VDSO_ABI_AA64].vdso_code_start, ELF_HEAD, ELF_HEAD_LEN)) {
+        LOG_E("vDSO is not a valid ELF object!");
+        init_ret_flag = -RT_ERROR;
+        return -RT_ERROR;
+    } */
+    if (rt_memcmp(vdso_info[VDSO_ABI_RV64].vdso_code_start, ELF_HEAD, ELF_HEAD_LEN)) {
         LOG_E("vDSO is not a valid ELF object!");
         init_ret_flag = -RT_ERROR;
         return -RT_ERROR;
     }
 
     /* 计算vDSO代码段页数 */
-    vdso_info[VDSO_ABI_AA64].vdso_pages = (
+    /* vdso_info[VDSO_ABI_AA64].vdso_pages = (
         vdso_info[VDSO_ABI_AA64].vdso_code_end -
         vdso_info[VDSO_ABI_AA64].vdso_code_start) >>
+        ARCH_PAGE_SHIFT; */
+    vdso_info[VDSO_ABI_RV64].vdso_pages = (
+        vdso_info[VDSO_ABI_RV64].vdso_code_end -
+        vdso_info[VDSO_ABI_RV64].vdso_code_start) >>
         ARCH_PAGE_SHIFT;
 
     __initdata();
